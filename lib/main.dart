@@ -28,7 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(""),
+        title: Text("Unergia"),
       ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.compare_arrows),
@@ -41,26 +41,28 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('cereal').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return CircularProgressIndicator();
-        else {
-          mydata = snapshot.data.documents
-              .map((e) => Cereal.fromJson(e.data))
-              .toList();
-          if(flag)
-            return _buildBarChart(context);
-          else
-            return _buildPieChart(context);
-        }
-      },
+    return Container(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('cereal').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return CircularProgressIndicator();
+          else {
+            mydata = snapshot.data.documents
+                .map((e) => Cereal.fromJson(e.data))
+                .toList();
+            _generateData(mydata);
+            if(flag)
+              return _buildBarChart(context);
+            else
+              return _buildPieChart(context);
+          }
+        },
+      ),
     );
   }
 
   Widget _buildPieChart(BuildContext context) {
-    _generateData(mydata);
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Container(
@@ -74,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   new charts.DatumLegend(
                     outsideJustification:
                     charts.OutsideJustification.endDrawArea,
-                    horizontalFirst: true,
+                    horizontalFirst: false,
                     desiredMaxRows: 2,
                     cellPadding:
                     new EdgeInsets.only(right: 4.0, bottom: 4.0,top:4.0),
@@ -92,7 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBarChart(BuildContext context) {
-    _generateData(mydata);
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Container(
@@ -106,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   new charts.DatumLegend(
                     outsideJustification:
                         charts.OutsideJustification.endDrawArea,
-                    horizontalFirst: true,
+                    horizontalFirst: false,
                     desiredMaxRows: 2,
                     cellPadding:
                         new EdgeInsets.only(right: 4.0, bottom: 4.0, top: 4.0),
@@ -126,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _seriesPieData = List<charts.Series<Cereal, String>>();
     _seriesPieData.add(
       charts.Series(
-          domainFn: (Cereal cereal, _) => cereal.rating.toString(),
+          domainFn: (Cereal cereal, _) => cereal.name.toString(),
           measureFn: (Cereal cereal, _) => cereal.rating,
           colorFn: (Cereal cereal, _) =>
               charts.ColorUtil.fromDartColor(Color(int.parse(cereal.colorVal))),
