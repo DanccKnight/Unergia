@@ -69,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            Padding(padding: const EdgeInsets.only(top: 20.0)),
               Expanded(
                 child: charts.PieChart(_seriesPieData,
                     animate: true,
@@ -80,13 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         horizontalFirst: false,
                         desiredMaxRows: 2,
                         cellPadding: new EdgeInsets.only(
-                            right: 4.0, top: 30.0),
+                            right: 4.0, top: 10, left: 14.0),
                         entryTextStyle: charts.TextStyleSpec(
                             color: charts.MaterialPalette.black, fontSize: 18),
                       )
                     ],
                     defaultRenderer: new charts.ArcRendererConfig(
-                        strokeWidthPx: 5.0,
+                        strokeWidthPx: 3.0,
                         arcWidth: 180,
                         arcRendererDecorators: [
                           charts.ArcLabelDecorator(
@@ -98,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           )
                         ])),
               ),
+            Padding(padding: const EdgeInsets.only(bottom: 40.0))
           ],
         ),
       ),
@@ -106,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildBarChart(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.only(top: 20, bottom: 80.0,left: 10.0 ),
       child: Container(
         child: Column(
           children: <Widget>[
