@@ -27,16 +27,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Unergia"),
-      ),
+        appBar: AppBar(
+          title: Text("Rating for different cereal brands"),
+        ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.compare_arrows),
-            onPressed: (){
-              setState((){
+            onPressed: () {
+              setState(() {
                 flag = !flag;
               });
-            } ),
+            }),
         body: _buildBody(context));
   }
 
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 .map((e) => Cereal.fromJson(e.data))
                 .toList();
             _generateData(mydata);
-            if(flag)
+            if (flag)
               return _buildBarChart(context);
             else
               return _buildPieChart(context);
@@ -64,29 +64,40 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildPieChart(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(0.0),
       child: Container(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Expanded(
-              child: charts.PieChart(
-                _seriesPieData,
-                animate: true,
-                behaviors: [
-                  new charts.DatumLegend(
-                    outsideJustification:
-                    charts.OutsideJustification.endDrawArea,
-                    horizontalFirst: false,
-                    desiredMaxRows: 2,
-                    cellPadding:
-                    new EdgeInsets.only(right: 4.0, bottom: 4.0,top:4.0),
-                    entryTextStyle: charts.TextStyleSpec(
-                        color: charts.MaterialPalette.black,
-                        fontSize: 18),
-                  )
-                ],
+              Expanded(
+                child: charts.PieChart(_seriesPieData,
+                    animate: true,
+                    animationDuration: Duration(seconds: 1),
+                    behaviors: [
+                      new charts.DatumLegend(
+                        outsideJustification:
+                            charts.OutsideJustification.endDrawArea,
+                        horizontalFirst: false,
+                        desiredMaxRows: 2,
+                        cellPadding: new EdgeInsets.only(
+                            right: 4.0, top: 30.0),
+                        entryTextStyle: charts.TextStyleSpec(
+                            color: charts.MaterialPalette.black, fontSize: 18),
+                      )
+                    ],
+                    defaultRenderer: new charts.ArcRendererConfig(
+                        strokeWidthPx: 5.0,
+                        arcWidth: 180,
+                        arcRendererDecorators: [
+                          charts.ArcLabelDecorator(
+                            insideLabelStyleSpec: charts.TextStyleSpec(
+                              fontSize: 15 ,color: charts.MaterialPalette.white
+                            ),
+                              labelPosition: charts.ArcLabelPosition.inside,
+
+                          )
+                        ])),
               ),
-            ),
           ],
         ),
       ),
@@ -103,18 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: charts.BarChart(
                 _seriesPieData,
                 animate: true,
-                behaviors: [
-                  new charts.DatumLegend(
-                    outsideJustification:
-                        charts.OutsideJustification.endDrawArea,
-                    horizontalFirst: false,
-                    desiredMaxRows: 2,
-                    cellPadding:
-                        new EdgeInsets.only(right: 4.0, bottom: 4.0, top: 4.0),
-                    entryTextStyle: charts.TextStyleSpec(
-                        color: charts.MaterialPalette.black, fontSize: 18),
-                  )
-                ],
+                animationDuration: Duration(seconds: 1),
               ),
             ),
           ],
@@ -133,7 +133,8 @@ class _MyHomePageState extends State<MyHomePage> {
               charts.ColorUtil.fromDartColor(Color(int.parse(cereal.colorVal))),
           id: 'cereal',
           data: mydata,
-          labelAccessorFn: (Cereal row, _) => "${row.rating}"),
+          labelAccessorFn: (Cereal cereal, _) => "${cereal.rating}"),
+
     );
   }
 }
