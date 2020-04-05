@@ -16,47 +16,12 @@ class _FlChartPageState extends State<FlChartPage> {
   List<Cereal> cerealData;
 
   Future<void> assignData() async {
-    QuerySnapshot querySnapshot =
-        await Firestore.instance.collection('cereal').getDocuments();
-    length = querySnapshot.documents.length;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder(
-        future: assignData(),
-        builder: (context, snapshot) {
-          return StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance.collection('cereal').snapshots(),
-              builder: (context, snapshot) {
-                cerealData = snapshot.data.documents
-                    .map((e) => Cereal.fromJson(e.data))
-                    .toList();
-                if (!snapshot.hasData)
-                  return CircularProgressIndicator();
-                else {
-                  return PieChart(PieChartData(
-                      pieTouchData:
-                          PieTouchData(touchCallback: (pieTouchResponse) {
-                        setState(() {
-                          if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                              pieTouchResponse.touchInput is FlPanEnd) {
-                            touchedIndex = -1;
-                          } else {
-                            touchedIndex = pieTouchResponse.touchedSectionIndex;
-                          }
-                        });
-                      }),
-                      borderData: FlBorderData(show: false),
-                      sectionsSpace: 0,
-                      centerSpaceRadius: 40,
-                      sections: showSection(snapshot)));
-                }
-              });
-        },
-      ),
-    );
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection('cereal')
+        .getDocuments()
+        .then((querySnapshot) {
+      length = querySnapshot.documents.length;
+    });
   }
 
   List<PieChartSectionData> showSection(AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -75,5 +40,82 @@ class _FlChartPageState extends State<FlChartPage> {
             color: const Color(0xffffffff)),
       );
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Rating of cereals with fl_chart"),
+      ),
+      extendBodyBehindAppBar: false,
+      body: FutureBuilder(
+        future: assignData(),
+        builder: (context, snapshot) {
+          if (length == null) return Center(child: CircularProgressIndicator());
+          return StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('cereal').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData)
+                  return Center(child: Text('No data present, wtf?'));
+                else {
+                  cerealData = snapshot.data.documents
+                      .map((e) => Cereal.fromJson(e.data))
+                      .toList();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 100, bottom: 35),
+                        child: SizedBox(
+                          height: 200,
+                          child: PieChart(PieChartData(
+                              pieTouchData: PieTouchData(
+                                  touchCallback: (pieTouchResponse) {
+                                setState(() {
+                                  if (pieTouchResponse.touchInput
+                                          is FlLongPressEnd ||
+                                      pieTouchResponse.touchInput is FlPanEnd) {
+                                    touchedIndex = -1;
+                                  } else {
+                                    touchedIndex =
+                                        pieTouchResponse.touchedSectionIndex;
+                                  }
+                                });
+                              }),
+                              borderData: FlBorderData(show: false),
+                              sectionsSpace: 12,
+                              centerSpaceRadius: 40,
+                              sections: showSection(snapshot))),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 135),
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Indicator(
+                                  color: Color(
+                                      int.parse(cerealData[index].colorVal)),
+                                  text: cerealData[index].name,
+                                  isSquare: false,
+                                  size: touchedIndex == index ? 18 : 16,
+                                  textColor: touchedIndex == index
+                                      ? Colors.black
+                                      : Colors.black54,
+                                ),
+                              );
+                            }),
+                      ),
+                    ],
+                  );
+                }
+              });
+        },
+      ),
+    );
   }
 }
