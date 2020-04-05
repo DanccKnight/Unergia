@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'Cereal.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'flchart.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,7 +10,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
+      routes: <String, WidgetBuilder>{
+        '/FlChartPage': (BuildContext context) => FlChartPage(),
+        '/MyHomePage': (BuildContext context) => MyHomePage()
+    }
     );
   }
 }
@@ -28,7 +34,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Rating for different cereal brands"),
+          title: Text("Rating of cereals with charts_flutter"),
+          actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: GestureDetector(onTap: (){
+                  Navigator.of(context).pushNamed('/FlChartPage');
+              },child: Icon(Icons.swap_horiz)),
+            )
+          ],
         ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.compare_arrows),

@@ -57,7 +57,7 @@ class _FlChartPageState extends State<FlChartPage> {
               stream: Firestore.instance.collection('cereal').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData)
-                  return Center(child: Text('No data present, wtf?'));
+                  return Center(child: CircularProgressIndicator());
                 else {
                   cerealData = snapshot.data.documents
                       .map((e) => Cereal.fromJson(e.data))
