@@ -15,41 +15,47 @@ class _FlChartPageState extends State<FlChartPage> {
   int length;
   List<Cereal> cerealData;
 
-  void assignData(AsyncSnapshot<QuerySnapshot> snapshot) async {
-    QuerySnapshot querySnapshot = await Firestore.instance.collection('cereal').getDocuments();
+  Future<void> assignData() async {
+    QuerySnapshot querySnapshot =
+        await Firestore.instance.collection('cereal').getDocuments();
     length = querySnapshot.documents.length;
-    cerealData =
-        snapshot.data.documents.map((e) => Cereal.fromJson(e.data)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('cereal').snapshots(),
-          builder: (context, snapshot) {
-            assignData(snapshot);
-            if (!snapshot.hasData)
-              return CircularProgressIndicator();
-            else {
-              return PieChart(PieChartData(
-                    pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-                      setState(() {
-                        if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                            pieTouchResponse.touchInput is FlPanEnd) {
-                          touchedIndex = -1;
-                        } else {
-                          touchedIndex = pieTouchResponse.touchedSectionIndex;
-                        }
-                      });
-                    }),
-                    borderData: FlBorderData(show: false),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 40,
-                    sections: showSection(snapshot)));
-
-            }
-          }),
+      body: FutureBuilder(
+        future: assignData(),
+        builder: (context, snapshot) {
+          return StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('cereal').snapshots(),
+              builder: (context, snapshot) {
+                cerealData = snapshot.data.documents
+                    .map((e) => Cereal.fromJson(e.data))
+                    .toList();
+                if (!snapshot.hasData)
+                  return CircularProgressIndicator();
+                else {
+                  return PieChart(PieChartData(
+                      pieTouchData:
+                          PieTouchData(touchCallback: (pieTouchResponse) {
+                        setState(() {
+                          if (pieTouchResponse.touchInput is FlLongPressEnd ||
+                              pieTouchResponse.touchInput is FlPanEnd) {
+                            touchedIndex = -1;
+                          } else {
+                            touchedIndex = pieTouchResponse.touchedSectionIndex;
+                          }
+                        });
+                      }),
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 0,
+                      centerSpaceRadius: 40,
+                      sections: showSection(snapshot)));
+                }
+              });
+        },
+      ),
     );
   }
 
